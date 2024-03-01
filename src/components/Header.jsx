@@ -1,29 +1,94 @@
 import React from "react";
-import { Badge, Container, Dropdown, FormControl, Navbar } from "react-bootstrap";
-import { Link } from "react-router-dom";
-import {FaShoppingCart} from 'react-icons/fa'
-
+import {
+  Badge,
+  Button,
+  Container,
+  Dropdown,
+  FormControl,
+  Navbar,
+  Nav,
+} from "react-bootstrap";
+import { Link, useLocation } from "react-router-dom";
+import { FaShoppingCart } from "react-icons/fa";
+import { cartState } from "../context/Context";
+import "../styles.css";
+import { AiFillDelete } from "react-icons/ai";
 
 const Header = () => {
+  const {
+    state: { cart },
+    dispatch,
+    productDispatch,
+  } = cartState();
+
   return (
-    <Navbar bg="dark" variant="dark" style={{height:80}}>
+    <Navbar bg="dark" variant="dark" style={{ height: 80 }}>
       <Container>
-        <Navbar.Brand href="#home">
-          <a href={"/"}>Shopping Cart</a>
+        <Navbar.Brand>
+          <Link to="/">Shopping Cart</Link>
         </Navbar.Brand>
-        <Navbar.Text className="search">
-            <FormControl style={{width:500}} placeholder="search a product" 
-            className="m-auto"/>           
-        </Navbar.Text>
-        <Dropdown alignRight>
-            <Dropdown.Toggle variant="success" >
-             <FaShoppingCart color="#fff" fontSize={25}/> 
-             <Badge>{10}</Badge>  
+        {useLocation().pathname.split("/")[1] !== "cart" && (
+          <Navbar.Text className="search">
+            <FormControl
+              style={{ width: 500 }}
+              type="search"
+              placeholder="Search a product..."
+              className="m-auto"
+              aria-label="Search"
+              onChange={(e) => {
+                productDispatch({
+                  type: "FILTER_BY_SEARCH",
+                  payload: e.target.value,
+                });
+              }}
+            />
+          </Navbar.Text>
+        )}
+        <Nav>
+          <Dropdown>
+            <Dropdown.Toggle variant="success">
+              <FaShoppingCart color="white" fontSize="25px" />
+              <span style={{ paddingLeft: 5 }}>{cart.length}</span>
             </Dropdown.Toggle>
-            <Dropdown.Menu style={{minWidth:370}}>
-                <span style={{padding:10}}>Cart is empty</span>
+
+            <Dropdown.Menu>
+              {cart.length > 0 ? (
+                <>
+                  {cart.map((prod) => (
+                    <span className="cartitem" key={prod.id}>
+                      <img
+                        src={prod.image}
+                        className="cartItemImg"
+                        alt={prod.name}
+                      />
+                      <div className="cartItemDetail">
+                        <span>{prod.name}</span>
+                        <span>₹ {prod.price.split(".")[0]}</span>
+                      </div>
+                      <AiFillDelete
+                        fontSize="20px"
+                        style={{ cursor: "pointer" }}
+                        onClick={() =>
+                          dispatch({
+                            type: "REMOVE_FROM_CART",
+                            payload: prod,
+                          })
+                        }
+                      />
+                    </span>
+                  ))}
+                  <Link to="/cart">
+                    <Button style={{ width: "95%", margin: "0 10px" }}>
+                      Go To Cart
+                    </Button>
+                  </Link>
+                </>
+              ) : (
+                <span style={{ padding: 10 }}>Cart is Empty!</span>
+              )}
             </Dropdown.Menu>
-        </Dropdown>
+          </Dropdown>
+        </Nav>
       </Container>
     </Navbar>
   );
