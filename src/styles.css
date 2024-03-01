@@ -71,6 +71,11 @@
   width: 30%;
 }
 
+.goBackBtn{
+  display: flex;
+  justify-content: center;
+}
+
 /* Media Queries */
 @media (max-width: 771px) {
   .filters {
